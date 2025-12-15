@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Typing Speed Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #38bdf8;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --card: #1f2937;
+      --border: #374151;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(1200px 800px at 30% 20%, #0b1220 0%, var(--bg) 60%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background: linear-gradient(180deg, var(--panel) 0%, #0e1628 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .subtitle {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      padding: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .content { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .label {
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 0.2px;
+      margin-bottom: 8px;
+    }
+
+    .reference {
+      background: #0f1a2b;
+      color: #cfe5ff;
+      border: 1px solid #1c2b42;
+      padding: 14px;
+      border-radius: 8px;
+      line-height: 1.6;
+      font-size: 15px;
+      user-select: none;
+    }
+
+    .textarea {
+      width: 100%;
+      min-height: 140px;
+      background: #0f1324;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 15px;
+      line-height: 1.6;
+      outline: none;
+      resize: vertical;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .textarea:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: #0f1324;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.04s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+    .btn:hover { background: #121735; border-color: #405075; }
+    .btn:active { transform: translateY(1px); }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+      border-color: #1e40af;
+      color: white;
+    }
+    .btn-primary:hover { filter: brightness(1.08); }
+    .btn-ghost {
+      background: transparent;
+      border-color: var(--border);
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+    .dot.live { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+    .dot.stop { background: var(--danger); }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 520px) {
+      .metrics-grid { grid-template-columns: 1fr; }
+    }
+
+    .metric {
+      background: #0f1324;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .metric .name {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.2px;
+    }
+    .metric .value {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+    .metric .unit {
+      font-size: 12px;
+      color: var(--muted);
+      margin-left: 6px;
+      font-weight: 600;
+    }
+
+    .result-card {
+      display: grid;
+      gap: 12px;
+    }
+
+    .muted-tip {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    .footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .link {
+      color: #93c5fd;
+      text-decoration: none;
+      border-bottom: 1px dashed #93c5fd;
+    }
+    .link:hover { color: #bfdbfe; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="title">Typing speed test</div>
+      <div class="subtitle">Measure WPM, errors, and accuracy using Levenshtein distance — just like your C++ program.</div>
+    </div>
+
+    <div class="content">
+      <!-- Left: Reference + Input -->
+      <div class="card">
+        <div class="label">Reference text</div>
+        <div id="ref" class="reference">Typing speed tests help improve accuracy and efficiency</div>
+
+        <div class="status" id="status">
+          <span class="dot" id="dot"></span>
+          <span id="statusText">Idle — press “Start” and then type the sentence.</span>
+        </div>
+
+        <div class="controls">
+          <button class="btn btn-primary" id="startBtn">Start</button>
+          <button class="btn btn-ghost" id="resetBtn">Reset</button>
+        </div>
+
+        <div class="label" style="margin-top: 14px;">Your input</div>
+        <textarea id="input" class="textarea" placeholder="Type the reference text here after you press Start..." disabled></textarea>
+
+        <div class="muted-tip">Tip: The timer starts when you click Start and stops when you press Enter or click Finish.</div>
+      </div>
+
+      <!-- Right: Metrics -->
+      <div class="card result-card">
+        <div class="metrics-grid">
+          <div class="metric">
+            <div class="name">Time</div>
+            <div class="value"><span id="timeVal">0.0</span><span class="unit">s</span></div>
+          </div>
+          <div class="metric">
+            <div class="name">Words typed</div>
+            <div class="value"><span id="wordsVal">0</span></div>
+          </div>
+          <div class="metric">
+            <div class="name">WPM</div>
+            <div class="value"><span id="wpmVal">0</span></div>
+          </div>
+          <div class="metric">
+            <div class="name">Errors</div>
+            <div class="value"><span id="errorsVal">0</span></div>
+          </div>
+        </div>
+
+        <div class="metric" style="margin-top: 4px;">
+          <div class="name">Accuracy</div>
+          <div class="value"><span id="accuracyVal">0.0</span><span class="unit">%</span></div>
+        </div>
+
+        <div class="controls">
+          <button class="btn btn-primary" id="finishBtn">Finish</button>
+          <button class="btn" id="copyLinkBtn">Copy sharable link</button>
+        </div>
+        <div class="muted-tip" id="copyStatus"></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div>Made for Srinivasa • Sahyadri College</div>
+      <div><a href="#" class="link" id="permalink">Permanent link to this test</a></div>
+    </div>
+  </div>
+
+  <script>
+    // Reference text
+    const reference = "Typing speed tests help improve accuracy and efficiency";
+
+    // Elements
+    const inputEl = document.getElementById('input');
+    const startBtn = document.getElementById('startBtn');
+    const finishBtn = document.getElementById('finishBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const timeVal = document.getElementById('timeVal');
+    const wordsVal = document.getElementById('wordsVal');
+    const wpmVal = document.getElementById('wpmVal');
+    const errorsVal = document.getElementById('errorsVal');
+    const accuracyVal = document.getElementById('accuracyVal');
+    const statusText = document.getElementById('statusText');
+    const dot = document.getElementById('dot');
+    const copyLinkBtn = document.getElementById('copyLinkBtn');
+    const copyStatus = document.getElementById('copyStatus');
+    const permalink = document.getElementById('permalink');
+    const refEl = document.getElementById('ref');
+
+    // State
+    let startTime = null;
+    let endTime = null;
+    let timerInterval = null;
+
+    // Utilities: trim trailing whitespace
+    function trimTrailing(s) {
+      return s.replace(/\s+$/g, '');
+    }
+
+    // Utilities: split sentence into words (space-separated)
+    function splitWords(s) {
+      const out = [];
+      let temp = '';
+      for (const c of s) {
+        if (c === ' ') {
+          if (temp.length) { out.push(temp); temp = ''; }
+        } else {
+          temp += c;
+        }
+      }
+      if (temp.length) out.push(temp);
+      return out;
+    }
+
+    // Levenshtein distance
+    function levenshtein(a, b) {
+      const n = a.length, m = b.length;
+      const dp = Array.from({ length: n + 1 }, () => Array(m + 1).fill(0));
+      for (let i = 0; i <= n; i++) dp[i][0] = i;
+      for (let j = 0; j <= m; j++) dp[0][j] = j;
+      for (let i = 1; i <= n; i++) {
+        for (let j = 1; j <= m; j++) {
+          if (a[i - 1] === b[j - 1]) {
+            dp[i][j] = dp[i - 1][j - 1];
+          } else {
+            dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+          }
+        }
+      }
+      return dp[n][m];
+    }
+
+    // Calculate metrics
+    function calculateMetrics(userInput, elapsedSeconds) {
+      const cleaned = trimTrailing(userInput);
+      const refWords = splitWords(reference);
+      const userWords = splitWords(cleaned);
+      const minWords = Math.min(refWords.length, userWords.length);
+
+      let totalErrors = 0;
+      for (let i = 0; i < minWords; i++) {
+        totalErrors += levenshtein(userWords[i], refWords[i]);
+      }
+      totalErrors += Math.abs(refWords.length - userWords.length);
+
+      const wordsTyped = userWords.length;
+      const wpm = elapsedSeconds > 0 ? (wordsTyped / elapsedSeconds) * 60 : 0;
+
+      const totalChars = reference.length;
+      const correctChars = Math.max(0, totalChars - totalErrors);
+      const accuracy = (correctChars / totalChars) * 100;
+
+      return {
+        timeTaken: elapsedSeconds,
+        wordsTyped,
+        wpm: Math.floor(wpm),
+        errors: totalErrors,
+        accuracy: accuracy
+      };
+    }
+
+    // Timer display
+    function startTimer() {
+      startTime = Date.now();
+      dot.classList.add('live'); dot.classList.remove('stop');
+      statusText.textContent = 'Live — type the reference and press Enter or click Finish.';
+      timerInterval = setInterval(() => {
+        const elapsed = (Date.now() - startTime) / 1000;
+        timeVal.textContent = elapsed.toFixed(1);
+      }, 100);
+    }
+
+    function stopTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      endTime = Date.now();
+      dot.classList.remove('live'); dot.classList.add('stop');
+      statusText.textContent = 'Stopped — review your results below.';
+    }
+
+    function updateMetrics() {
+      const elapsed = startTime ? ((endTime ?? Date.now()) - startTime) / 1000 : 0;
+      const m = calculateMetrics(inputEl.value, elapsed);
+      timeVal.textContent = m.timeTaken.toFixed(1);
+      wordsVal.textContent = m.wordsTyped;
+      wpmVal.textContent = m.wpm;
+      errorsVal.textContent = m.errors;
+      accuracyVal.textContent = m.accuracy.toFixed(1);
+    }
+
+    // Controls
+    startBtn.addEventListener('click', () => {
+      inputEl.value = '';
+      inputEl.disabled = false;
+      inputEl.focus();
+      startTimer();
+      updateMetrics();
+    });
+
+    finishBtn.addEventListener('click', () => {
+      stopTimer();
+      updateMetrics();
+      inputEl.disabled = true;
+    });
+
+    resetBtn.addEventListener('click', () => {
+      if (timerInterval) clearInterval(timerInterval);
+      startTime = null; endTime = null;
+      timeVal.textContent = '0.0';
+      wordsVal.textContent = '0';
+      wpmVal.textContent = '0';
+      errorsVal.textContent = '0';
+      accuracyVal.textContent = '0.0';
+      statusText.textContent = 'Idle — press “Start” and then type the sentence.';
+      dot.classList.remove('live', 'stop');
+      inputEl.value = '';
+      inputEl.disabled = true;
+    });
+
+    // Enter key ends test
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        finishBtn.click();
+      }
+    });
+
+    // Live metrics while typing
+    inputEl.addEventListener('input', () => {
+      updateMetrics();
+    });
+
+    // Sharable link: encodes the input and time in query params
+    function buildLink() {
+      const elapsed = startTime && endTime ? ((endTime - startTime) / 1000) : 0;
+      const params = new URLSearchParams({
+        ref: reference,
+        input: inputEl.value,
+        t: elapsed.toFixed(2)
+      });
+      return `${location.origin}${location.pathname}?${params.toString()}`;
+    }
+
+    copyLinkBtn.addEventListener('click', async () => {
+      const url = buildLink();
+      try {
+        await navigator.clipboard.writeText(url);
+        copyStatus.textContent = 'Link copied to clipboard.';
+      } catch {
+        copyStatus.textContent = 'Could not copy link. You can manually copy the URL.';
+      }
+      setTimeout(() => copyStatus.textContent = '', 2500);
+    });
+
+    // Load from query params if present (permalink)
+    function loadFromParams() {
+      const params = new URLSearchParams(location.search);
+      const ref = params.get('ref');
+      const input = params.get('input');
+      const t = parseFloat(params.get('t') || '0');
+
+      if (ref) {
+        refEl.textContent = ref;
+      }
+      if (input) {
+        inputEl.value = input;
+        inputEl.disabled = true;
+        startTime = Date.now() - t * 1000;
+        endTime = Date.now();
+        updateMetrics();
+        statusText.textContent = 'Loaded from link — results reconstructed.';
+        dot.classList.add('stop');
+      }
+      permalink.setAttribute('href', buildLink());
+    }
+
+    loadFromParams();
+  </script>
+</body>
+</html>
